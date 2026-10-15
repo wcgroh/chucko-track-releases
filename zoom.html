@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chucko Track – Zoom sign-in</title>
+<style>
+  body { font-family: "Segoe UI", Arial, sans-serif; max-width: 40em; margin: 3em auto; padding: 0 1em; color: #1b2233; line-height: 1.5; }
+  code { background: #eceef4; padding: 2px 6px; border-radius: 3px; word-break: break-all; font-size: 1.05em; }
+  .muted { color: #5c6579; font-size: 0.95em; }
+</style>
+</head>
+<body>
+<h1>Chucko Track</h1>
+<p id="msg">Returning to Chucko Track…</p>
+<div id="manual" hidden>
+  <p>If Chucko Track did not pick this up on its own, copy this code into the box in the app's Zoom window:</p>
+  <p><code id="code"></code></p>
+  <p class="muted">This page only hands Zoom's one-time sign-in code back to the Chucko Track application running on your own computer. It stores nothing.</p>
+</div>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search);
+  var code = q.get("code"), state = q.get("state") || "", err = q.get("error");
+  var msg = document.getElementById("msg");
+  if (err) {
+    msg.textContent = "Zoom reported an error: " + err + " " + (q.get("error_description") || "") +
+      ". Close this tab and try again from Chucko Track.";
+    return;
+  }
+  if (!code) {
+    msg.textContent = "No sign-in code was received. Close this tab and try again from Chucko Track.";
+    return;
+  }
+  var m = /p(\d{2,5})$/.exec(state);
+  var port = m ? m[1] : "5000";
+  document.getElementById("code").textContent = code;
+  document.getElementById("manual").hidden = false;
+  var target = "http://127.0.0.1:" + port + "/zoom/callback?code=" + encodeURIComponent(code) +
+    "&state=" + encodeURIComponent(state);
+  location.replace(target);
+})();
+</script>
+</body>
+</html>
